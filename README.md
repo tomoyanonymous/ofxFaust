@@ -36,9 +36,11 @@ Signal Processing is now via raw libfaust api.
 
 ## Todo
 
-Wrap signal processing part.
-Crossfade in live recompilation like FaustLive.
-Showing SVG diagram via ofxSVG.
+- Wrap signal processing part.
+- Crossfade in live recompilation like FaustLive.
+- Showing SVG diagram via ofxSVG.
+- Write examples.
+
 
 ## author
 
