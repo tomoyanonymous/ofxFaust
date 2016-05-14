@@ -185,6 +185,7 @@ public:
 };
 
 
+
 class ofxFaustGui : public UI{
 private:
 
@@ -195,36 +196,35 @@ public:
     ofParameterGroup parameters;
     std::map<string, ofxGuiGroup*> fUITable;
     std::vector<string> fUIHierarchy;
-    
     ofxFaustGui(){
         panel = new ofxPanel();
-        panel = panel->setup();
-
+        panel = panel->setup("GUI");
     }
-    virtual ~ofxFaustGui(){}
-
-    
+    virtual ~ofxFaustGui(){
+        delete panel;
+    }
     void draw(){
         panel->draw();
     }
-//    vector<ofxPanel*> guis;
+
     // -- widget's layouts
     virtual void addMainPanel(const char* label){
         fUITable[string(label)] = panel;
         fUIHierarchy.push_back(label);
-        cout << "mainpanel called" <<endl;
-    }
+           }
     virtual void addToGroup(ofxBaseGui* element){
             string last = fUIHierarchy.back();
             fUITable[last]->add(element);
         
     }
     virtual void addGenericGroup(const char* label){
+        
         if(fUIHierarchy.empty()){
             addMainPanel(label);
-                    }else{
-            string last = fUIHierarchy.back();
+
+        }else{
             ofxGuiGroup* group = new ofxGuiGroup();
+            group->setup(label);
             fUITable[string(label)] = group;
             addToGroup(group);
             fUIHierarchy.push_back(label);
@@ -241,14 +241,11 @@ public:
         
     }
     virtual void openVerticalBox(const char* label){
-            addGenericGroup(label);
+        addGenericGroup(label);
 
     }
     virtual void closeBox(){
-        if(!fUIHierarchy.empty()){
-            fUIHierarchy.pop_back();
-            
-        }
+        fUIHierarchy.pop_back();
     }
     
     // -- active widgets
@@ -266,7 +263,6 @@ public:
     virtual void addSlider(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT init, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT step){
         ofxFaustSlider* slider = new ofxFaustSlider(label,zone,init,min,max,step);
         addToGroup(slider->slider);
-        cout << "slider called" <<endl;
     }
     virtual void addVerticalSlider(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT init, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT step){
             addSlider(label,zone,init, min, max, step);
@@ -275,21 +271,19 @@ public:
         addSlider(label,zone,init, min, max, step);
 
     }
-//    void sliderChanged(&slider){
-//        
-//    }
-        virtual void addNumEntry(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT init, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT step){
+
+    virtual void addNumEntry(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT init, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT step){
              addSlider(label,zone,init, min, max, step);
-        }
+    }
     
     // -- passive widgets
     
-        virtual void addHorizontalBargraph(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT min, FAUSTFLOAT max) {}
-        virtual void addVerticalBargraph(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT min, FAUSTFLOAT max){}
+    virtual void addHorizontalBargraph(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT min, FAUSTFLOAT max) {}
+    virtual void addVerticalBargraph(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT min, FAUSTFLOAT max){}
     
     // -- metadata declarations
     
-        virtual void declare(FAUSTFLOAT*, const char*, const char*){}
+    virtual void declare(FAUSTFLOAT*, const char*, const char*){}
 
 };
 
