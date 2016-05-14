@@ -31,6 +31,7 @@ class ofApp : public ofBaseApp{
         string error;
         llvm_dsp_factory* factory;
         llvm_dsp* dsp;
+        int numinput ,numoutput;
         float* laudio;
         float* raudio;
         float** audio;
