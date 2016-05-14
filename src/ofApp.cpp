@@ -15,17 +15,21 @@ void ofApp::setup(){
     cout << soundStream.setup(this,2, 2, 44100, 256, 4)<<endl;
 //    ofSoundStreamStart();
     ofSetFrameRate(30);
-    laudio = new float[soundStream.getBufferSize()]();
+//    laudio = new float[soundStream.getBufferSize()]();
 //    for(int i ; i<soundStream.getBufferSize();i++){
 //        laudio[i]=i;
 //    }
     cout <<"buffersize"<< soundStream.getBufferSize() <<endl;
-    raudio = new float[soundStream.getBufferSize()]();
-    audio = new float*[32]();
-//    Rects = new ofRect[soundStream.getBufferSize()];
-    shard_buf = new float*[32];
-    for(int i=0;i<32;i++){
+//    raudio = new float[soundStream.getBufferSize()]();
+    numinput = dsp->getNumInputs();
+    numoutput = dsp->getNumOutputs();
+    audio = new float*[soundStream.getBufferSize()]();
+    shard_buf = new float*[soundStream.getBufferSize()];
+    
+    for(int i=0;i<numinput;i++){
         shard_buf[i] = new float[256];
+    }
+    for(int i=0;i<numoutput;i++){
         audio[i] = new float[256];
     }
     
@@ -42,24 +46,24 @@ void ofApp::draw(){
     ofSetColor(255,20,20);
     ofFill();
     for(int i = 0; i<soundStream.getBufferSize();i++ ){
-        ofDrawRectangle(i*3,ofGetHeight()/3-laudio[i]*60,2,2+laudio[i]*60);
+        ofDrawRectangle(i*3,ofGetHeight()/3-audio[0][i]*60,2,2+audio[0][i]*60);
     }
     ofSetColor(20,255,20);
     ofFill();
     for(int i = 0; i<soundStream.getBufferSize();i++ ){
-        ofDrawRectangle(i*3,ofGetHeight()*2/3-raudio[i]*60,2,2+raudio[i]*60);
+        ofDrawRectangle(i*3,ofGetHeight()*2/3-audio[1][i]*60,2,2+audio[1][i]*60);
     }
     ofDrawRectangle(mouseX,mouseY,10,10);
 }
 //-----------------
 void ofApp::audioOut(float * output, int bufferSize, int nChannels){
     
-    audio[0] = laudio;
-    audio[1] = raudio;
+//    audio[0] = laudio;
+//    audio[1] = raudio;
     dsp->compute(bufferSize,shard_buf,audio);
     for(int i=0 ; i<bufferSize ;i++){
-        output[i*2]   = laudio[i];
-        output[i*2+1] = raudio[i];
+        output[i*2]   = audio[0][i];
+        output[i*2+1] = audio[1][i];
     }
 }
 
