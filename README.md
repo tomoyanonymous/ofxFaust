@@ -13,7 +13,7 @@ FAUST (Functional Audio Stream) is a functional programming language specificall
 
 <https://github.com/grame-cncm/faust>
 
-ofxFaustGui.h is no just header file but **Faust Architecture File**.
+ofxFaustGui.h is not just header file but **Faust Architecture File**.
 
 ```sh
 cd ~/openFrameworks/myApps/example_ofxFaustGui

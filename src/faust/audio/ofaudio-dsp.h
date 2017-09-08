@@ -89,9 +89,7 @@ class ofaudio : public audio, public ofBaseSoundInput, public ofBaseSoundOutput 
         bool init(const char* name, dsp* dsp)
         {
             fDSP = dsp;
-            
-            //fStream.printDeviceList();
-            
+                        
             fNIInputs = new float*[fDSP->getNumInputs()];
             for (int i = 0; i < fDSP->getNumInputs(); i++) {
                 fNIInputs[i] = new float[4046];
@@ -114,6 +112,7 @@ class ofaudio : public audio, public ofBaseSoundInput, public ofBaseSoundOutput 
     
         bool start()
         {
+            fStream.printDeviceList();
             // 'setup' also starts the stream...
             return fStream.setup(fDSP->getNumOutputs(), fDSP->getNumInputs(), fSampleRate, fBufferSize, 1);
         }

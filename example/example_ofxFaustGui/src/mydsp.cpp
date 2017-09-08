@@ -30,7 +30,7 @@ Compilation options: -scal -ftz 0-----------------------------------------------
 
 #include <math.h>
 
-float mydsp_faustpower2_f(float value) {
+static float mydsp_faustpower2_f(float value) {
 	return (value * value);
 	
 }
@@ -43,15 +43,24 @@ class mydsp : public dsp {
 	
  private:
 	
-	FAUSTFLOAT fCheckbox0;
 	FAUSTFLOAT fVslider0;
+	FAUSTFLOAT fCheckbox0;
 	FAUSTFLOAT fHslider0;
 	int fSamplingFreq;
 	float fConst0;
+	float fConst1;
 	FAUSTFLOAT fHslider1;
+	int iVec0[2];
 	FAUSTFLOAT fCheckbox1;
 	float fRec0[3];
-	float fRec1[3];
+	FAUSTFLOAT fCheckbox2;
+	float fConst2;
+	float fConst3;
+	float fConst4;
+	float fRec1[2];
+	float fConst5;
+	float fRec2[2];
+	float fRec3[3];
 	
  public:
 	
@@ -66,6 +75,8 @@ class mydsp : public dsp {
 		m->declare("maths.lib/name", "Faust Math Library");
 		m->declare("maths.lib/version", "2.1");
 		m->declare("name", "sample");
+		m->declare("oscillators.lib/name", "Faust Oscillator Library");
+		m->declare("oscillators.lib/version", "0.0");
 	}
 
 	virtual int getNumInputs() {
@@ -123,26 +134,44 @@ class mydsp : public dsp {
 	
 	virtual void instanceConstants(int samplingFreq) {
 		fSamplingFreq = samplingFreq;
-		fConst0 = (3.14159274f / min(192000.0f, max(1.0f, float(fSamplingFreq))));
+		fConst0 = min(192000.0f, max(1.0f, float(fSamplingFreq)));
+		fConst1 = (3.14159274f / fConst0);
+		fConst2 = (6283.18555f / fConst0);
+		fConst3 = sinf(fConst2);
+		fConst4 = cosf(fConst2);
+		fConst5 = (0.0f - fConst3);
 		
 	}
 	
 	virtual void instanceResetUserInterface() {
-		fCheckbox0 = FAUSTFLOAT(0.0f);
 		fVslider0 = FAUSTFLOAT(-20.0f);
+		fCheckbox0 = FAUSTFLOAT(0.0f);
 		fHslider0 = FAUSTFLOAT(2.0f);
 		fHslider1 = FAUSTFLOAT(1000.0f);
 		fCheckbox1 = FAUSTFLOAT(0.0f);
+		fCheckbox2 = FAUSTFLOAT(0.0f);
 		
 	}
 	
 	virtual void instanceClear() {
-		for (int l0 = 0; (l0 < 3); l0 = (l0 + 1)) {
-			fRec0[l0] = 0.0f;
+		for (int l0 = 0; (l0 < 2); l0 = (l0 + 1)) {
+			iVec0[l0] = 0;
 			
 		}
 		for (int l1 = 0; (l1 < 3); l1 = (l1 + 1)) {
-			fRec1[l1] = 0.0f;
+			fRec0[l1] = 0.0f;
+			
+		}
+		for (int l2 = 0; (l2 < 2); l2 = (l2 + 1)) {
+			fRec1[l2] = 0.0f;
+			
+		}
+		for (int l3 = 0; (l3 < 2); l3 = (l3 + 1)) {
+			fRec2[l3] = 0.0f;
+			
+		}
+		for (int l4 = 0; (l4 < 3); l4 = (l4 + 1)) {
+			fRec3[l4] = 0.0f;
 			
 		}
 		
@@ -168,6 +197,9 @@ class mydsp : public dsp {
 	
 	virtual void buildUserInterface(UI* ui_interface) {
 		ui_interface->openVerticalBox("sample");
+		ui_interface->openHorizontalBox("0x00");
+		ui_interface->addCheckButton("beep", &fCheckbox2);
+		ui_interface->closeBox();
 		ui_interface->openHorizontalBox("filter");
 		ui_interface->addHorizontalSlider("cutoff_freq", &fHslider1, 1000.0f, 1.0f, 20000.0f, 0.00999999978f);
 		ui_interface->addHorizontalSlider("q", &fHslider0, 2.0f, 0.100000001f, 6.0f, 0.00999999978f);
@@ -188,29 +220,36 @@ class mydsp : public dsp {
 		FAUSTFLOAT* input1 = inputs[1];
 		FAUSTFLOAT* output0 = outputs[0];
 		FAUSTFLOAT* output1 = outputs[1];
-		float fSlow0 = (1.0f / float(fHslider0));
-		float fSlow1 = tanf((fConst0 * mydsp_faustpower2_f(float(fHslider1))));
-		float fSlow2 = (1.0f / fSlow1);
-		float fSlow3 = (((fSlow0 + fSlow2) / fSlow1) + 1.0f);
-		float fSlow4 = ((float(fCheckbox0) * powf(10.0f, (0.0500000007f * float(fVslider0)))) / fSlow3);
+		float fSlow0 = (powf(10.0f, (0.0500000007f * float(fVslider0))) * float((float(fCheckbox0) == 0.0f)));
+		float fSlow1 = (1.0f / float(fHslider0));
+		float fSlow2 = tanf((fConst1 * float(fHslider1)));
+		float fSlow3 = (1.0f / fSlow2);
+		float fSlow4 = (1.0f / (((fSlow1 + fSlow3) / fSlow2) + 1.0f));
 		float fSlow5 = float(fCheckbox1);
 		int iSlow6 = int(fSlow5);
-		float fSlow7 = (1.0f / fSlow3);
-		float fSlow8 = (((fSlow2 - fSlow0) / fSlow1) + 1.0f);
-		float fSlow9 = (2.0f * (1.0f - (1.0f / mydsp_faustpower2_f(fSlow1))));
-		float fSlow10 = (0.0f - fSlow2);
+		float fSlow7 = (((fSlow3 - fSlow1) / fSlow2) + 1.0f);
+		float fSlow8 = (2.0f * (1.0f - (1.0f / mydsp_faustpower2_f(fSlow2))));
+		float fSlow9 = (0.0f - fSlow3);
+		float fSlow10 = float(fCheckbox2);
 		int iSlow11 = (fSlow5 == 0.0f);
 		for (int i = 0; (i < count); i = (i + 1)) {
+			iVec0[0] = 1;
 			float fTemp0 = float(input0[i]);
 			float fTemp1 = float(input1[i]);
-			fRec0[0] = ((iSlow6?fTemp1:fTemp0) - (fSlow7 * ((fSlow8 * fRec0[2]) + (fSlow9 * fRec0[1]))));
-			output0[i] = FAUSTFLOAT((fSlow4 * ((fSlow2 * fRec0[0]) + (fSlow10 * fRec0[2]))));
-			fRec1[0] = ((iSlow11?fTemp1:fTemp0) - (fSlow7 * ((fSlow9 * fRec1[1]) + (fSlow8 * fRec1[2]))));
-			output1[i] = FAUSTFLOAT((fSlow4 * ((fSlow2 * fRec1[0]) + (fSlow10 * fRec1[2]))));
+			fRec0[0] = ((iSlow6?fTemp1:fTemp0) - (fSlow4 * ((fSlow7 * fRec0[2]) + (fSlow8 * fRec0[1]))));
+			fRec1[0] = ((fConst3 * fRec2[1]) + (fConst4 * fRec1[1]));
+			fRec2[0] = (((fConst4 * fRec2[1]) + (fConst5 * fRec1[1])) + float((1 - iVec0[1])));
+			float fTemp2 = (fSlow10 * fRec1[0]);
+			output0[i] = FAUSTFLOAT((fSlow0 * ((fSlow4 * ((fSlow3 * fRec0[0]) + (fSlow9 * fRec0[2]))) + fTemp2)));
+			fRec3[0] = ((iSlow11?fTemp1:fTemp0) - (fSlow4 * ((fSlow8 * fRec3[1]) + (fSlow7 * fRec3[2]))));
+			output1[i] = FAUSTFLOAT((fSlow0 * (fTemp2 + (fSlow4 * ((fSlow3 * fRec3[0]) + (fSlow9 * fRec3[2]))))));
+			iVec0[1] = iVec0[0];
 			fRec0[2] = fRec0[1];
 			fRec0[1] = fRec0[0];
-			fRec1[2] = fRec1[1];
 			fRec1[1] = fRec1[0];
+			fRec2[1] = fRec2[0];
+			fRec3[2] = fRec3[1];
+			fRec3[1] = fRec3[0];
 			
 		}
 		
