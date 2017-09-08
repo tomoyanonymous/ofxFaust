@@ -1,5 +1,7 @@
 # ofxFaust(ALPHA)
 
+__Now under construction on master. Example won't be built__
+
 Faust addon for Openframeworks
 
 FAUST (Functional Audio Stream) is a functional programming language specifically designed for real-time signal processing and synthesis.
@@ -7,19 +9,18 @@ FAUST (Functional Audio Stream) is a functional programming language specificall
 
 ## Dependency
 
-### libfaust.a
-This repository contains libfaust binary built on Mac OS X10.11.4 with LLVM3.5 in libs/libfaust/lib.
-The binary is actually hosted via git-lfs. After install of git lfs,
+### Faust
 
-```bash
-$ git lfs pull
+<https://github.com/grame-cncm/faust>
+
+ofxFaustGui.h is no just header file but **Faust Architecture File**.
+
+```sh
+cd ~/openFrameworks/myApps/example_ofxFaustGui
+faust sample.dsp -a ~/openFrameworks/addons/ofxFaust/src/ofxFaustGui.h -o mydsp.cpp
 ```
-to download it.(Also you can replace text pointer to your own binary by hand.)
 
-### libLLVM
-
-For live compilation.
-add to "Link with binaries" together with libfaust.
+Faust compiler convert .dsp file into mydsp.cpp with ofxFaustGui.h.
 
 ### ofxGui
 
@@ -27,17 +28,14 @@ to build GUI.
 
 ## Environment
 
-tested on only Mac OSX10.11.4,Xcode7.3.1
+tested on only Mac OSX10.11.6,Xcode8.2.1
 
 ## current feature
 
 Integration with ofxGui.
-Signal Processing is now via raw libfaust api.
 
 ## Todo
 
-- Wrap signal processing part.
-- Crossfade in live recompilation like FaustLive.
 - Showing SVG diagram via ofxSVG.
 - Write examples.
 
@@ -46,4 +44,4 @@ Signal Processing is now via raw libfaust api.
 
 [Matsuura Tomoya](matsuuratomoya.com)
 
-MIT License.
+GPL License.
