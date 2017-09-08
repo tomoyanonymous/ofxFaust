@@ -1,7 +1,15 @@
+#include "faust/gui/meta.h"
+#include "faust/gui/UI.h"
+#include "faust/dsp/dsp.h"
+#include "faust/misc.h"
+#include "faust/audio/ofaudio-dsp.h"
 
-using namespace std;
-
-include "ofxFaustUi.h"
+#include "ofxGui.h"
+#include <vector>
+#include <map>
+#include <string>
+#include <iostream>
+#include <assert.h>
 
 //Intrinsic
 
@@ -15,7 +23,7 @@ class ofxFaustUIObject {
 
 protected:
 
-    string fLabel;
+    std::string fLabel;
     FAUSTFLOAT* fZone;
 
     FAUSTFLOAT range(FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT val) {return (val < min) ? min : (val > max) ? max : val;}
@@ -23,13 +31,13 @@ protected:
 
 public:
 
-    ofxFaustUIObject(const string& label, FAUSTFLOAT* zone):fLabel(label),fZone(zone) {}
+    ofxFaustUIObject(const std::string& label, FAUSTFLOAT* zone):fLabel(label),fZone(zone) {}
     virtual ~ofxFaustUIObject() {}
 
     virtual void setValue(FAUSTFLOAT f) { *fZone = range(0.0, 1.0, f); }
     virtual FAUSTFLOAT getValue() { return *fZone; }
     virtual void toString(char* buffer) {}
-    virtual string getName() { return fLabel; }
+    virtual std::string getName() { return fLabel; }
 
 };
 
@@ -43,7 +51,7 @@ private:
 public:
     ofxToggle* toggle;
 
-    ofxFaustCheckButton(const string& label, FAUSTFLOAT* zone):ofxFaustUIObject(label,zone) {
+    ofxFaustCheckButton(const std::string& label, FAUSTFLOAT* zone):ofxFaustUIObject(label,zone) {
         toggle = new ofxToggle();
         toggle = toggle->setup(label,*fZone);
         toggle->addListener(this,&ofxFaustCheckButton::valueChanged);
@@ -69,7 +77,7 @@ private:
 public:
     ofxButton* button;
 
-    ofxFaustButton(const string& label, FAUSTFLOAT* zone):ofxFaustUIObject(label, zone) {
+    ofxFaustButton(const std::string& label, FAUSTFLOAT* zone):ofxFaustUIObject(label, zone) {
         button = new ofxButton();
         button = button->setup(label);
         button->addListener(this,&ofxFaustButton::valueChanged);
@@ -100,7 +108,7 @@ private:
 
 public:
     ofxSlider<FAUSTFLOAT>* slider;
-    ofxFaustSlider(const string& label, FAUSTFLOAT* zone, FAUSTFLOAT init, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT step)
+    ofxFaustSlider(const std::string& label, FAUSTFLOAT* zone, FAUSTFLOAT init, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT step)
     :ofxFaustUIObject(label,zone),fInit(init),fMin(min),fMax(max),fStep(step) {
         slider = new ofxSlider<FAUSTFLOAT>();
         slider = slider->setup(label,fInit,fMin,fMax);
@@ -131,7 +139,7 @@ private:
 
 public:
 
-   ofxFaustBargraph(const string& label, FAUSTFLOAT* zone, FAUSTFLOAT min, FAUSTFLOAT max)
+   ofxFaustBargraph(const std::string& label, FAUSTFLOAT* zone, FAUSTFLOAT min, FAUSTFLOAT max)
     :ofxFaustUIObject(label,zone),fMin(min),fMax(max),fCurrent(*zone) {}
     virtual ~ofxFaustBargraph() {}
 
@@ -163,8 +171,8 @@ public:
 
     ofxPanel* panel;
     ofParameterGroup parameters;
-    std::map<string, ofxGuiGroup*> fUITable;
-    std::vector<string> fUIHierarchy;
+    std::map<std::string, ofxGuiGroup*> fUITable;
+    std::vector<std::string> fUIHierarchy;
     ofxFaustGui(){
         panel = new ofxPanel();
         panel = panel->setup("GUI");
@@ -178,11 +186,11 @@ public:
 
     // -- widget's layouts
     virtual void addMainPanel(const char* label){
-        fUITable[string(label)] = panel;
+        fUITable[std::string(label)] = panel;
         fUIHierarchy.push_back(label);
            }
     virtual void addToGroup(ofxBaseGui* element){
-            string last = fUIHierarchy.back();
+            std::string last = fUIHierarchy.back();
             fUITable[last]->add(element);
 
     }
@@ -194,7 +202,7 @@ public:
         }else{
             ofxGuiGroup* group = new ofxGuiGroup();
             group->setup(label);
-            fUITable[string(label)] = group;
+            fUITable[std::string(label)] = group;
             addToGroup(group);
             fUIHierarchy.push_back(label);
         }
@@ -255,5 +263,3 @@ public:
 
 
 
-
-#endif
